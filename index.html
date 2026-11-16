@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mon Salaire d'Apprenti : simulateur pédagogique de rémunération minimale d'un apprenti en France.">
+  <title>Mon Salaire d'Apprenti</title>
+  <style>
+    :root{--green:#2E7D32;--green-dark:#205b25;--bg:#F4F6F5;--ink:#1C2826;--muted:#5e6b66;--line:#dce5df;--white:#fff;--pale:#eaf3eb;--danger:#a52d2d}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+    header{background:var(--white);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+    .wrap{width:min(100% - 32px,960px);margin:auto}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0}
+    .brand{font-weight:800;color:var(--green);font-size:1.15rem;letter-spacing:-.03em}
+    nav{display:flex;gap:8px;flex-wrap:wrap}
+    nav button,.btn{border:0;border-radius:12px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
+    nav button{background:transparent;color:var(--muted)}
+    nav button[aria-current="page"]{background:var(--pale);color:var(--green-dark)}
+    main{padding:34px 0 56px}
+    .panel{display:none}.panel.active{display:block}
+    .hero{background:linear-gradient(135deg,#eaf3eb,#fff);border:1px solid var(--line);border-radius:24px;padding:clamp(22px,5vw,42px);margin-bottom:22px}
+    .eyebrow{color:var(--green);font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    h1{font-size:clamp(2rem,5vw,3.1rem);line-height:1.08;letter-spacing:-.045em;margin:8px 0 14px}
+    h2{font-size:1.55rem;letter-spacing:-.025em;margin:0 0 8px}
+    h3{font-size:1.08rem;margin:0 0 8px}
+    p{margin:8px 0 14px}
+    .muted{color:var(--muted)}
+    .card{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:clamp(18px,4vw,28px);box-shadow:0 8px 24px rgba(24,55,35,.04)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    .field{display:flex;flex-direction:column;gap:7px}
+    label{font-weight:700;font-size:.94rem}
+    input,select{width:100%;min-height:48px;border:1px solid #bdcbc1;border-radius:11px;padding:11px 12px;background:#fff;color:var(--ink);font:inherit}
+    input:focus,select:focus,button:focus-visible{outline:3px solid #a9d4ad;outline-offset:2px}
+    .hint{font-size:.82rem;color:var(--muted)}
+    .btn{background:var(--green);color:white;min-height:50px}
+    .btn:hover{background:var(--green-dark)}
+    .btn.secondary{background:#edf3ee;color:var(--green-dark)}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+    .error{display:none;color:var(--danger);background:#fff0f0;border:1px solid #efcaca;padding:12px 14px;border-radius:12px;margin-top:16px;font-weight:700}
+    .result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0}
+    .metric{background:#f7faf7;border:1px solid var(--line);border-radius:16px;padding:18px}
+    .metric .value{font-size:clamp(1.6rem,4vw,2.25rem);font-weight:850;letter-spacing:-.04em;color:var(--green-dark)}
+    .metric .caption{font-size:.88rem;color:var(--muted)}
+    .pill{display:inline-block;background:var(--pale);color:var(--green-dark);font-weight:800;padding:5px 10px;border-radius:999px;font-size:.85rem}
+    .notice{border-left:4px solid var(--green);background:#f3f8f3;padding:14px 16px;border-radius:0 12px 12px 0;margin:16px 0}
+    .warning{border-left-color:#c28b26;background:#fff9eb}
+    .steps{padding-left:20px}
+    .steps li{margin:8px 0}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:540px;margin:14px 0}
+    th,td{text-align:center;padding:11px 9px;border-bottom:1px solid var(--line)}
+    th{background:#edf4ee;color:var(--green-dark)}
+    td:first-child,th:first-child{text-align:left}
+    a{color:var(--green-dark);font-weight:700}
+    footer{padding:24px 0;color:var(--muted);font-size:.85rem;text-align:center}
+    @media(max-width:640px){.top{align-items:flex-start;flex-direction:column}nav{width:100%}nav button{flex:1;padding:10px 7px;font-size:.88rem}.form-grid,.result-grid{grid-template-columns:1fr}.actions .btn{width:100%}main{padding-top:22px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap top">
+    <div class="brand">🌿 Mon Salaire d'Apprenti</div>
+    <nav aria-label="Navigation principale">
+      <button type="button" data-page="home" aria-current="page">Accueil</button>
+      <button type="button" data-page="result">Résultat</button>
+      <button type="button" data-page="legal">Mentions légales</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="home" class="panel active">
+    <div class="hero">
+      <div class="eyebrow">Comprendre sa rémunération</div>
+      <h1>Ton salaire d'apprenti, simplement.</h1>
+      <p>Renseigne quelques informations pour obtenir une estimation pédagogique de ta rémunération minimale brute et une estimation indicative du net.</p>
+      <p class="muted">Les montants sont calculés à partir du SMIC mensuel brut de référence et de la grille officielle 2026. Le résultat ne remplace pas une fiche de paie.</p>
+    </div>
+    <div class="card">
+      <h2>Ma simulation</h2>
+      <p class="muted">Les champs marqués d'un astérisque sont obligatoires.</p>
+      <form id="sim-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="age">Ton âge exact * </label>
+            <input id="age" name="age" type="number" min="16" max="70" step="1" placeholder="Ex. : 19" required>
+            <span class="hint">Entre 16 et 70 ans.</span>
+          </div>
+          <div class="field">
+            <label for="year">Année du contrat *</label>
+            <select id="year" name="year" required>
+              <option value="">Choisir une année</option>
+              <option value="1">1re année</option>
+              <option value="2">2e année</option>
+              <option value="3">3e année</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="smic">SMIC brut mensuel de référence (€) *</label>
+            <input id="smic" name="smic" type="text" inputmode="decimal" value="1867,02" required>
+            <span class="hint">Valeur par défaut au 1er juin 2026, modifiable.</span>
+          </div>
+          <div class="field">
+            <label for="start">Date de début du contrat (facultatif)</label>
+            <input id="start" name="start" type="date">
+            <span class="hint">Utile pour choisir le plafond d'exonération applicable au net.</span>
+          </div>
+        </div>
+        <div id="error" class="error" role="alert">Erreur de saisie : merci de vérifier votre âge et votre année de contrat pour obtenir un calcul valide.</div>
+        <div class="actions">
+          <button class="btn" type="submit">Calculer mon salaire</button>
+          <button class="btn secondary" type="reset">Effacer</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section id="result" class="panel">
+    <div class="card">
+      <div class="eyebrow">Ta simulation</div>
+      <h2>Voici ton estimation</h2>
+      <p class="muted" id="summary">Complète le formulaire pour afficher ton résultat.</p>
+      <div class="result-grid">
+        <div class="metric"><div class="caption">Salaire mensuel brut minimum estimé</div><div class="value" id="gross">—</div></div>
+        <div class="metric"><div class="caption">Salaire net indicatif estimé</div><div class="value" id="net">—</div></div>
+        <div class="metric"><div class="caption">Pourcentage du SMIC appliqué</div><div class="value" id="rate">—</div></div>
+        <div class="metric"><div class="caption">Plafond d'exonération utilisé</div><div class="value" id="ceiling">—</div></div>
+      </div>
+      <h3>Comment le calcul est-il effectué ?</h3>
+      <ol class="steps" id="explanation"></ol>
+      <div class="notice warning" id="net-note"></div>
+      <div class="notice">
+        <strong>À retenir :</strong> les changements de tranche d'âge prennent effet le premier jour du mois suivant l'anniversaire. Une convention collective ou l'employeur peut prévoir une rémunération plus favorable.
+      </div>
+      <div class="actions">
+        <button class="btn secondary" type="button" data-page="home">Modifier ma simulation</button>
+        <button class="btn" type="button" onclick="window.print()">Imprimer le résultat</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="legal" class="panel">
+    <div class="card">
+      <div class="eyebrow">Informations</div>
+      <h2>Mentions légales</h2>
+      <p><strong>Nom de l'application :</strong> Mon Salaire d'Apprenti</p>
+      <p><strong>Éditrices :</strong> Shahina B. et Syana C., élèves en classe de 1re STMG au lycée Victor Hugo à Gaillac.</p>
+      <p><strong>Hébergement :</strong> GitHub Pages (GitHub Inc.).</p>
+      <p><strong>Sources des données :</strong></p>
+      <ul>
+        <li><a href="https://travail-emploi.gouv.fr/aides-couts-salaire-le-simulateur-en-ligne-pour-les-employeurs-apprentis" target="_blank" rel="noopener">Ministère du Travail – grille de rémunération 2026</a>.</li>
+        <li><a href="https://www.service-public.fr/particuliers/vosdroits/F2918" target="_blank" rel="noopener">Service-Public.fr – contrat d'apprentissage</a>.</li>
+        <li><a href="https://mon-entreprise.urssaf.fr/documentation/salari%C3%A9/contrat/apprentissage/assiette-r%C3%A9duite-apprentissage" target="_blank" rel="noopener">Urssaf – assiette réduite apprentissage</a>.</li>
+        <li><a href="https://travail-emploi.gouv.fr/le-smic-salaire-minimum-de-croissance" target="_blank" rel="noopener">Ministère du Travail – montant du SMIC</a>.</li>
+      </ul>
+      <p><strong>Date de vérification des données :</strong> novembre 2026.</p>
+      <div class="notice"><strong>Simulation pédagogique : les résultats sont indicatifs et ne remplacent pas l'avis d'un professionnel</strong></div>
+      <p><strong>Confidentialité :</strong> Aucune donnée personnelle n'est collectée ni enregistrée, aucun cookie n'est utilisé.</p>
+      <p><strong>Crédits :</strong> police système sans-serif (aucune police externe) ; icône végétale 🌿 : caractère emoji du système d'exploitation.</p>
+      <p class="muted">Cette application ne transmet aucune information à un serveur. Les données saisies sont utilisées uniquement dans la page ouverte et ne sont pas conservées après sa fermeture ou son actualisation.</p>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">Mon Salaire d'Apprenti · Projet pédagogique de 1re STMG · Données de référence 2026</div></footer>
+
+<script>
+  const pages = ["home","result","legal"];
+  function showPage(id){
+    pages.forEach(p=>document.getElementById(p).classList.toggle("active",p===id));
+    document.querySelectorAll("nav button").forEach(b=>{
+      if(b.dataset.page===id)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
+    });
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+  const form=document.getElementById("sim-form");
+  const errorBox=document.getElementById("error");
+  const fmt=n=>new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"}).format(n);
+  const rates={
+    under18:[27,39,55],
+    age18to20:[43,51,67],
+    age21to25:[53,61,78],
+    age26plus:[100,100,100]
+  };
+  function parseEuro(value){
+    const cleaned=String(value).trim().replace(/\s/g,"").replace(",",".");
+    if(!/^\d+(\.\d{1,2})?$/.test(cleaned))return NaN;
+    return Number(cleaned);
+  }
+  form.addEventListener("submit",e=>{
+    e.preventDefault();
+    const age=Number(document.getElementById("age").value);
+    const year=Number(document.getElementById("year").value);
+    const smic=parseEuro(document.getElementById("smic").value);
+    const start=document.getElementById("start").value;
+    if(!Number.isInteger(age)||age<16||age>70||![1,2,3].includes(year)||!Number.isFinite(smic)||smic<=0){
+      errorBox.style.display="block";return;
+    }
+    errorBox.style.display="none";
+    let bracket,key;
+    if(age<18){bracket="moins de 18 ans";key="under18";}
+    else if(age<=20){bracket="18 à 20 ans";key="age18to20";}
+    else if(age<=25){bracket="21 à 25 ans";key="age21to25";}
+    else{bracket="26 ans et plus";key="age26plus";}
+    const rate=rates[key][year-1];
+    const gross=Math.round(smic*rate)/100;
+    const contractDate=start?new Date(start+"T12:00:00"):null;
+    const cutoff=new Date("2025-03-01T00:00:00");
+    const thresholdRate=contractDate&&contractDate<cutoff?0.79:0.50;
+    const threshold=smic*thresholdRate;
+    // Approximation pédagogique : 20 % de retenues sur la seule part dépassant le plafond exonéré.
+    // Le taux réel dépend de la situation de paie et ne peut pas être déduit de la seule grille.
+    const excess=Math.max(0,gross-threshold);
+    const estimatedNet=Math.max(0,gross-excess*0.20);
+    document.getElementById("gross").textContent=fmt(gross);
+    document.getElementById("net").textContent=fmt(estimatedNet);
+    document.getElementById("rate").textContent=rate+" %";
+    document.getElementById("ceiling").textContent=fmt(threshold)+" ("+(thresholdRate*100)+" %)";
+    document.getElementById("summary").textContent=`Âge : ${age} ans · ${year}${year===1?"re":"e"} année · tranche : ${bracket}.`;
+    const steps=document.getElementById("explanation");
+    steps.replaceChildren();
+    [
+      `SMIC brut mensuel de référence : ${fmt(smic)}.`,
+      `Pour ${bracket} en ${year}${year===1?"re":"e"} année, le taux minimal retenu est de ${rate} %.`,
+      `Calcul du brut : ${fmt(smic)} × ${rate} ÷ 100 = ${fmt(gross)}.`,
+      `Plafond d'exonération estimé : ${fmt(smic)} × ${Math.round(thresholdRate*100)} % = ${fmt(threshold)}.`,
+      `Part dépassant le plafond : ${fmt(excess)}. Le net affiché applique une hypothèse pédagogique de retenues de 20 % sur cette seule part.`
+    ].forEach(t=>{const li=document.createElement("li");li.textContent=t;steps.appendChild(li);});
+    document.getElementById("net-note").textContent=
+      `Attention : le net n'est pas un montant officiel ni une prévision de fiche de paie. Pour cette simulation, le contrat est traité selon le plafond de ${Math.round(thresholdRate*100)} % du SMIC ${contractDate?"d'après la date de début saisie":"par défaut, faute de date de début renseignée"}. Le taux de retenues de 20 % sur la part dépassant ce plafond est une hypothèse simplifiée ; les cotisations réelles dépendent notamment du statut de l'employeur et des éléments de paie. Pour un calcul personnalisé, utilisez le simulateur officiel de l'Urssaf.`;
+    showPage("result");
+  });
+  form.addEventListener("reset",()=>{errorBox.style.display="none";});
+</script>
+</body>
+</html>
